@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="dynamic_json" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+  <name>Dynamic JSON Datasource</name>
+  <description>Use JSON as a dynamic datasource</description>
+  <repo type="github">https://github.com/qurben/dynamic_json</repo>
+  <types>
+    <type>Other</type>
+    <type>Security</type>
+  </types>
+  <authors>
+    <author>
+      <name github="qurben" symphony="qurben">Gerben Oolbekkink</name>
+      <website>http://qurben.com</website>
+    </author>
+  </authors>
+  <releases>
+    <release version="1.0" date="2013-06-24" min="2.3.2"/>
+  </releases>
+</extension>
