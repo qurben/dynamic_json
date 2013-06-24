@@ -1,6 +1,6 @@
 # Dynamic JSON Datasource
 
-- Version: 1.0
+- Version: 0.1.0
 - Author: Gerben Oolbekkink
 - Requirements: Symphony 2.3.2
 
@@ -30,7 +30,3 @@ To see the XML generated from this data source just add it to a page and use the
 ## Notes
 
 This extension is still in development, so use it at your own risk. It should work just as stable as _Dynamic XML_. Be aware of the fact that the XML structure may change after updating to a next version; it is now just made to work, tidying up is next.
-
-## Thanks
-
-I would like to thank
