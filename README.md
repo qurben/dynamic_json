@@ -25,7 +25,7 @@ With more and more API's switching to pure JSON --think of Twitter, Rottentomato
 
 ## Hints
 
-To see the XML generated from this data source just add it to a page and use the Debug Devkit (_?debug_) to inspect the XML.
+To see the XML generated from this data source just add it to a page and use the Debug Devkit _(?debug)_ to inspect the XML.
 
 ## Notes
 
