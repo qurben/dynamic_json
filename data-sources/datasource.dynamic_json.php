@@ -44,7 +44,6 @@
         'xpath' => $this->dsParamXPATH,
         'timeout' => $this->dsParamTIMEOUT,
         'format' => $this->dsParamFORMAT,
-        'namespace' => $this->dsParamFILTERS
       );
 
       return $settings;
@@ -66,11 +65,11 @@
   -------------------------------------------------------------------------*/
 
     /**
-     * Add options to the editor
+     * Add options to the data source editor
      * @param $wrapper
      * The options page
      * @param $errors
-     * Array to write errors to
+     * Object to add errors to
      * @param $settings
      * Array with all the settings
      *
@@ -78,6 +77,7 @@
     public static function buildEditor(XMLElement $wrapper, array &$errors = array(), array $settings = null, $handle = null) {
       $class = self::getClass();
 
+      // If this is a new data source, there are no settings, use the standard settings
       if (!isset($settings[$class])) {
         $settings[$class]['url'] = '';
         $settings[$class]['cache'] = '30';
@@ -103,70 +103,6 @@
       $p->setAttribute('class', 'help');
       $label->appendChild($p);
 
-      $div = new XMLElement('div');
-      $p = new XMLElement('p', __('Namespace Declarations'));
-      $p->appendChild(new XMLElement('i', __('Optional')));
-      $p->setAttribute('class', 'label');
-      $div->appendChild($p);
-
-      $ol = new XMLElement('ol');
-      $ol->setAttribute('class', 'filters-duplicator');
-      $ol->setAttribute('data-add', __('Add namespace'));
-      $ol->setAttribute('data-remove', __('Remove namespace'));
-
-      if(is_array($settings[$class]['namespace'])){
-        $i = 0;
-        foreach($settings[$class]['namespace'] as $name => $uri){
-          // Namespaces get saved to the file as $name => $uri, however in
-          // the $_POST they are represented as $index => array. This loop
-          // patches the difference.
-          if(is_array($uri)) {
-            $name = $uri['name'];
-            $uri = $uri['uri'];
-          }
-
-          $li = new XMLElement('li');
-          $li->appendChild(new XMLElement('header', '<h4>' . __('Namespace') . '</h4>'));
-
-          $group = new XMLElement('div');
-          $group->setAttribute('class', 'group');
-
-          $label = Widget::Label(__('Name'));
-          $label->appendChild(Widget::Input("fields[$class][namespace][$i][name]", General::sanitize($name)));
-          $group->appendChild($label);
-
-          $label = Widget::Label(__('URI'));
-          $label->appendChild(Widget::Input("fields[$class][namespace][$i][uri]", General::sanitize($uri)));
-          $group->appendChild($label);
-
-          $li->appendChild($group);
-          $ol->appendChild($li);
-          $i++;
-        }
-      }
-
-      $li = new XMLElement('li');
-      $li->setAttribute('class', 'template');
-      $li->setAttribute('data-type', 'namespace');
-      $li->appendChild(new XMLElement('header', '<h4>' . __('Namespace') . '</h4>'));
-
-      $group = new XMLElement('div');
-      $group->setAttribute('class', 'group');
-
-      $label = Widget::Label(__('Name'));
-      $label->appendChild(Widget::Input("fields[$class][namespace][-1][name]"));
-      $group->appendChild($label);
-
-      $label = Widget::Label(__('URI'));
-      $label->appendChild(Widget::Input("fields[$class][namespace][-1][uri]"));
-      $group->appendChild($label);
-
-      $li->appendChild($group);
-      $ol->appendChild($li);
-
-      $div->appendChild($ol);
-      $fieldset->appendChild($div);
-
       $label = Widget::Label(__('Included Elements'));
       $label->appendChild(Widget::Input("fields[$class][xpath]", General::sanitize($settings[$class]['xpath'])));
       if(isset($errors[$class]['xpath'])) $fieldset->appendChild(Widget::Error($label, $errors[$class]['xpath']));
@@ -190,9 +126,17 @@
       $wrapper->appendChild($fieldset);
     }
 
+    /**
+     * Validate the input from the editor
+     * @param fields
+     * The values from the user input
+     * @param errors
+     * Object to add errors to
+     */
     public static function validate(array &$fields, array &$errors) {
       $class = self::getClass();
 
+      // Check if the user inputted at least something as URL
       if(trim($fields[$class]['url']) == '') $errors[$class]['url'] = __('This is a required field');
 
       // Use the TIMEOUT that was specified by the user for a real world indication
@@ -222,6 +166,16 @@
       return empty($errors[$class]);
     }
 
+    /**
+     * Prepare the datasource.*.php file by inserting values
+     * @param settings
+     * settings from the datasource
+     * @param params
+     * default parameters
+     * @param template
+     * The template as string
+     * @return The template with values injected
+     */
     public static function prepare(array $settings, array $params, $template) {
       $class = self::getClass();
 
@@ -231,16 +185,8 @@
       $params['format'] = $settings[$class]['format'];
       $params['timeout'] = (isset($settings[$class]['timeout']) ? (int)$settings[$class]['timeout'] : '6');
 
+      // Inject the variables in the template replacing the <!-- VAR LIST -->
       self::__injectVarList($params,$template);
-
-      $filters = array();
-      if(is_array($settings[$class]['namespace'])) foreach($settings[$class]['namespace'] as $index => $data) {
-        $filters[$data['name']] = $data['uri'];
-      }
-
-      self::__injectFilters($filters,$template);
-
-      $extends = 'DynamicJSONDatasource';
 
       return $template;
     }
@@ -248,7 +194,11 @@
   /*-------------------------------------------------------------------------
     Execution
   -------------------------------------------------------------------------*/
-
+    /**
+     * Called every time a page with this data source is fetched
+     * @param param_pool
+     * Not used
+     */
     public function execute(array &$param_pool = null) {
 
       $result = new XMLElement($this->dsParamROOTELEMENT);
@@ -269,11 +219,6 @@
 
       $instruction = new XMLElement('xsl:copy-of');
 
-      // Namespaces
-      if(isset($this->dsParamFILTERS) && is_array($this->dsParamFILTERS)){
-        foreach($this->dsParamFILTERS as $name => $uri) $instruction->setAttribute('xmlns' . ($name ? ":{$name}" : NULL), $uri);
-      }
-
       // XPath
       $instruction->setAttribute('select', $this->dsParamXPATH);
 
@@ -284,7 +229,7 @@
 
       $xsl = $stylesheet->generate(true);
 
-      $cache_id = md5($this->dsParamURL . serialize($this->dsParamFILTERS) . $this->dsParamXPATH);
+      $cache_id = md5($this->dsParamURL . $this->dsParamXPATH);
 
       $cache = new Cacheable(Symphony::Database());
 
@@ -427,75 +372,6 @@
       return $result;
     }
     
-  /*-------------------------------------------------------------------------
-    Legacy functions for Datasources that don't inherit SectionsDatasource
-  -------------------------------------------------------------------------*/
-
-    public function processFilters(Datasource $datasource, &$where, &$joins, &$group) {
-      if(!is_array($datasource->dsParamFILTERS) || empty($datasource->dsParamFILTERS)) return;
-
-      $pool = FieldManager::fetch(array_filter(array_keys($datasource->dsParamFILTERS), 'is_int'));
-      self::$field_pool += $pool;
-
-      foreach($datasource->dsParamFILTERS as $field_id => $filter){
-
-        if((is_array($filter) && empty($filter)) || trim($filter) == '') continue;
-
-        if(!is_array($filter)){
-          $filter_type = $datasource->__determineFilterType($filter);
-
-          $value = preg_split('/'.($filter_type == DS_FILTER_AND ? '\+' : '(?<!\\\\),').'\s*/', $filter, -1, PREG_SPLIT_NO_EMPTY);
-          $value = array_map('trim', $value);
-          $value = array_map(array('Datasource', 'removeEscapedCommas'), $value);
-        }
-
-        else $value = $filter;
-
-        if($field_id != 'id' && $field_id != 'system:date' && !(self::$field_pool[$field_id] instanceof Field)){
-          throw new Exception(
-            __(
-              'Error creating field object with id %1$d, for filtering in data source %2$s. Check this field exists.',
-              array($field_id, '<code>' . $this->dsParamROOTELEMENT . '</code>')
-            )
-          );
-        }
-
-        if($field_id == 'id') {
-          $c = 'IN';
-          if(stripos($value[0], 'not:') === 0) {
-            $value[0] = preg_replace('/^not:\s*/', null, $value[0]);
-            $c = 'NOT IN';
-          }
-
-          // Cast all ID's to integers.
-          $value = array_map(create_function('$x', 'return (int)$x;'),$value);
-          $value = array_filter($value);
-
-          // If there are no ID's, no need to filter. RE: #1567
-          if(!empty($value)) {
-            $where .= " AND `e`.id " . $c . " (".implode(", ", $value).") ";
-          }
-        }
-        else if($field_id == 'system:date') {
-          require_once(TOOLKIT . '/fields/field.date.php');
-          $date_joins = '';
-          $date_where = '';
-          $date = new fieldDate();
-          $date->buildDSRetrievalSQL($value, $date_joins, $date_where, ($filter_type == DS_FILTER_AND ? true : false));
-
-          // Replace the date field where with the `creation_date` or `modification_date`.
-          $date_where = preg_replace('/`t\d+`.date/', ($field_id !== 'system:modification-date') ? '`e`.creation_date_gmt' : '`e`.modification_date_gmt', $date_where);
-          $where .= $date_where;
-        }
-        else {
-          // For deprecated reasons, call the old, typo'd function name until the switch to the
-          // properly named buildDSRetrievalSQL function.
-          if(!self::$field_pool[$field_id]->buildDSRetrivalSQL($value, $joins, $where, ($filter_type == DS_FILTER_AND ? true : false))){ $datasource->_force_empty_result = true; return; }
-          if(!$group) $group = self::$field_pool[$field_id]->requiresSQLGrouping();
-        }
-      }
-    }
-
     public static function __injectVarList($vars, &$shell){
       if(!is_array($vars) || empty($vars)) return;
 
@@ -512,22 +388,6 @@
 
       $placeholder = '<!-- VAR LIST -->';
       $shell = str_replace($placeholder, trim($var_list) . PHP_EOL . "\t\t" . $placeholder, $shell);
-    }
-
-    public static function __injectFilters(array $filters, &$shell){
-      if(empty($filters)) return;
-
-      $placeholder = '<!-- FILTERS -->';
-      $string = 'public $dsParamFILTERS = array(' . PHP_EOL;
-
-      foreach($filters as $key => $val){
-        if(trim($val) == '') continue;
-        $string .= "\t\t\t\t'$key' => '" . addslashes($val) . "'," . PHP_EOL;
-      }
-
-      $string .= "\t\t);" . PHP_EOL . "\t\t" . $placeholder;
-
-      $shell = str_replace($placeholder, trim($string), $shell);
     }
 
     /**

@@ -6,8 +6,6 @@
 
     <!-- VAR LIST -->
 
-    <!-- FILTERS -->
-
     public function __construct($env=NULL, $process_params=true){
       parent::__construct($env, $process_params);
       $this->_dependencies = array(<!-- DS DEPENDENCY LIST -->);
