@@ -1,12 +1,13 @@
 # Dynamic JSON Datasource
 
-- Version: 0.1.0
+- Version: 0.1.1
 - Author: Gerben Oolbekkink
+- Release date: 06-24-13
 - Requirements: Symphony 2.3.2
 
 ## Description
 
-With more and more API's switching to pure JSON --think of Twitter, Rottentomatoes, etc-- sometimes there is no option but to use a JSON API. This extension allows you to create a JSON-based datasource just like an XML-based datasource; the JSON is converted to XML in the backend and provided to the frontend as pure XML.
+With more and more API's switching to pure JSON —think of Twitter, Rottentomatoes, etc— sometimes there is no option but to use a JSON API. This extension allows you to create a JSON-based datasource just like an XML-based datasource; the JSON is converted to XML in the backend and provided to the frontend as pure XML.
 
 ## Installation
 
@@ -26,6 +27,10 @@ With more and more API's switching to pure JSON --think of Twitter, Rottentomato
 ## Hints
 
 To see the XML generated from this data source just add it to a page and use the Debug Devkit _(?debug)_ to inspect the XML.
+
+## Roadmap
+
+I am looking at implementing some kind of OAuth implementation to properly include Twitter on a website.
 
 ## Notes
 
