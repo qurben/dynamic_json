@@ -3,6 +3,7 @@
   <name>Dynamic JSON Datasource</name>
   <description>Use JSON as a dynamic datasource</description>
   <repo type="github">https://github.com/qurben/dynamic_json</repo>
+  <url type="discuss">http://www.getsymphony.com/discuss/thread/101533</url>
   <types>
     <type>Other</type>
     <type>Security</type>
@@ -14,6 +15,6 @@
     </author>
   </authors>
   <releases>
-    <release version="1.0" date="2013-06-24" min="2.3.2"/>
+    <release version="0.1.0" date="2013-06-24" min="2.3.2"/>
   </releases>
 </extension>
