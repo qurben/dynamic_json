@@ -217,12 +217,18 @@
       $template = new XMLElement('xsl:template');
       $template->setAttribute('match', '/');
 
+      // Do not include the data element from the json converter
+      $root = new XMLElement('xsl:copy-of');
+      $root->setAttribute('select', 'data/node()');
+
+      $template->appendChild($root);
+
       $instruction = new XMLElement('xsl:copy-of');
 
       // XPath
       $instruction->setAttribute('select', $this->dsParamXPATH);
 
-      $template->appendChild($instruction);
+      $root->appendChild($instruction);
       $stylesheet->appendChild($template);
 
       $stylesheet->setIncludeHeader(true);
