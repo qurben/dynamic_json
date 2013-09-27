@@ -1,7 +1,7 @@
 <?php
 
   require_once TOOLKIT . '/class.datasource.php';
-  require_once TOOLKIT . '/class.json.php';
+  require_once __DIR__ . '/../lib/json.class.php';
   require_once FACE . '/interface.datasource.php';
 
   Class DynamicJSONDatasource extends Datasource implements iDatasource {
