@@ -30,7 +30,7 @@ To see the XML generated from this data source just add it to a page and use the
 
 ## Roadmap
 
-I am looking at implementing some kind of OAuth implementation to properly include Twitter on a website. See bd4dc9aecbb6edf2689dce3060dad491671583fb
+I am looking at implementing some kind of OAuth implementation to properly include Twitter on a website. See qurben/qOAuth@bd4dc9aecbb6edf2689dce3060dad491671583fb
 
 ## Notes
 
