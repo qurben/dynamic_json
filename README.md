@@ -1,6 +1,6 @@
 # Dynamic JSON Datasource
 
-- Version: 0.1.1
+- Version: 0.1.2
 - Author: Gerben Oolbekkink
 - Release date: 06-24-13
 - Requirements: Symphony 2.3.2
@@ -30,8 +30,12 @@ To see the XML generated from this data source just add it to a page and use the
 
 ## Roadmap
 
-I am looking at implementing some kind of OAuth implementation to properly include Twitter on a website.
+I am looking at implementing some kind of OAuth implementation to properly include Twitter on a website. See bd4dc9aecbb6edf2689dce3060dad491671583fb
 
 ## Notes
 
 This extension is still in development, so use it at your own risk. It should work just as stable as _Dynamic XML_. Be aware of the fact that the XML structure may change after updating to a next version; it is now just made to work, tidying up is next.
+
+## Changes
+
+0.1.2: Generated JSON is much cleaner, the default class provided in Symphony creates a lot of junk
